@@ -53,7 +53,7 @@ public class SystemInfoUtils {
         s_instanceId =  System.getProperty(OPENNMS_INSTANCE_ID_SYS_PROP, DEFAULT_INSTANCE_ID);
 
         s_displayVersion = System.getProperty("version.display", "");
-        final Pattern versionPattern = Pattern.compile("^(\\d+\\.\\d+\\.\\d+).*?$");
+        final Pattern versionPattern = Pattern.compile("^(\\d+\\.\\d+\\.\\d+)(-SNAPSHOT)?$");
         final Matcher m = versionPattern.matcher(s_displayVersion);
         if (m.matches()) {
             s_version = m.group(1);

@@ -352,6 +352,11 @@
 
             <!-- Flows -->
             <feature>opennms-flows</feature>
+
+	    <!-- Integration API -->
+	    <feature>opennms-api-layer</feature>
+	    <feature>opennms-integration-api</feature>
+	    <feature>opennms-integration-api-sample-project</feature>
           </features>
         </configuration>
       </plugin>
@@ -866,6 +871,12 @@
       <artifactId>scv</artifactId>
       <version>${project.version}</version>
       <type>pom</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.opennms.features</groupId>
+      <artifactId>org.opennms.features.api-layer</artifactId>
+      <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
