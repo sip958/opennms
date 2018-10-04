@@ -52,7 +52,15 @@ public class VersionBeanTest {
         assertThat(versionB.getPatch(), equalTo(1));
         assertThat(versionB.isSnapshot(), equalTo(false));
 
+        Version versionC = new VersionBean("23.0.0-0.20181003.onms2471.features.integration.api.3");
+        assertThat(versionC.getMajor(), equalTo(23));
+        assertThat(versionC.getMinor(), equalTo(0));
+        assertThat(versionC.getPatch(), equalTo(0));
+        assertThat(versionC.isSnapshot(), equalTo(true));
+
         // Test comparable
         assertThat(versionB, greaterThan(versionA));
+        assertThat(versionB, greaterThan(versionC));
+        assertThat(versionA, equalTo(versionC));
     }
 }

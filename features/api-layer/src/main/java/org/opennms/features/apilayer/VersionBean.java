@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
 import org.opennms.integration.api.v1.runtime.Version;
 
 public class VersionBean implements Version {
-    private static final Pattern versionPattern = Pattern.compile("^(\\d+).(\\d+)\\.(\\d+)(?<snapshot>-SNAPSHOT)?$");
+    private static final Pattern versionPattern = Pattern.compile("^(\\d+).(\\d+)\\.(\\d+)(?<snapshot>.+)?$");
 
     private final int major;
     private final int minor;
