@@ -880,6 +880,12 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>org.opennms.integration.api.sample</groupId>
+      <artifactId>sample-project</artifactId>
+      <version>${opennmsApiVersion}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.opennms.integration.api</groupId>
       <artifactId>karaf-features</artifactId>
       <version>${opennmsApiVersion}</version>
