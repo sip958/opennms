@@ -30,14 +30,13 @@ package org.opennms.features.apilayer.alarms;
 
 import java.util.Objects;
 
-import org.hibernate.FlushMode;
 import org.opennms.features.apilayer.utils.InterfaceMapper;
 import org.opennms.features.apilayer.utils.ModelMappers;
 import org.opennms.integration.api.v1.model.Alarm;
 import org.opennms.integration.api.v1.model.DatabaseEvent;
 import org.opennms.integration.api.v1.model.InMemoryEvent;
 import org.opennms.netmgt.alarmd.api.AlarmPersisterExtension;
-import org.opennms.netmgt.dao.api.SessionFactoryWrapper;
+import org.opennms.netmgt.dao.api.SessionUtils;
 import org.opennms.netmgt.model.OnmsAlarm;
 import org.opennms.netmgt.model.OnmsEvent;
 import org.opennms.netmgt.xml.event.Event;
@@ -45,11 +44,11 @@ import org.osgi.framework.BundleContext;
 
 public class AlarmPersisterExtensionMgr extends InterfaceMapper<org.opennms.integration.api.v1.alarms.AlarmPersisterExtension,AlarmPersisterExtension> {
 
-    private final SessionFactoryWrapper sessionFactoryWrapper;
+    private final SessionUtils sessionUtils;
 
-    public AlarmPersisterExtensionMgr(BundleContext bundleContext, SessionFactoryWrapper sessionFactoryWrapper) {
+    public AlarmPersisterExtensionMgr(BundleContext bundleContext, SessionUtils sessionUtils) {
         super(AlarmPersisterExtension.class, bundleContext);
-        this.sessionFactoryWrapper = Objects.requireNonNull(sessionFactoryWrapper);
+        this.sessionUtils = Objects.requireNonNull(sessionUtils);
     }
 
     @Override
@@ -81,13 +80,10 @@ public class AlarmPersisterExtensionMgr extends InterfaceMapper<org.opennms.inte
             // The alarm was not updated, nothing to do here
             return;
         }
-
-        final FlushMode flushMode = sessionFactoryWrapper.getSessionFactory().getCurrentSession().getFlushMode();
-        try {
+        sessionUtils.withManualFlush(() -> {
             alarm.setManagedObjectInstance(updatedAlarm.getManagedObjectInstance());
             alarm.setManagedObjectType(updatedAlarm.getManagedObjectType());
-        } finally {
-            sessionFactoryWrapper.getSessionFactory().getCurrentSession().setFlushMode(flushMode);
-        }
+            return null;
+        });
     }
 }

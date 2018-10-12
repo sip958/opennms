@@ -230,6 +230,7 @@ public class ConfigReloadContainer<V> implements ReloadingContainer<V>, Registra
         reload();
     }
 
+    @Override
     public void providerRegistered(Registration registration, ConfigurationProvider provider) {
         if (clazz.equals(registration.getProvider(ConfigurationProvider.class).getType())) {
             if (providers.add(new ConfigurationProviderState<>(provider))) {
@@ -240,6 +241,7 @@ public class ConfigReloadContainer<V> implements ReloadingContainer<V>, Registra
         }
     }
 
+    @Override
     public void providerUnregistered(Registration registration, ConfigurationProvider provider) {
         if (providers.remove(new ConfigurationProviderState(provider))) {
             LOG.debug("Unregistered configuration provider {} for {}.", provider, clazz.getCanonicalName());

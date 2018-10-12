@@ -57,10 +57,10 @@
   </service>
 
   <!-- Alarm Persister Extension -->
-  <reference id="sessionFacotry" interface="org.opennms.netmgt.dao.api.SessionFactoryWrapper"/>
+  <reference id="sessionUtils" interface="org.opennms.netmgt.dao.api.SessionUtils"/>
   <bean id="alarmPersisterExtensionMgr" class="org.opennms.features.apilayer.alarms.AlarmPersisterExtensionMgr">
     <argument ref="blueprintBundleContext"/>
-    <argument ref="sessionFacotry"/>
+    <argument ref="sessionUtils"/>
   </bean>
   <reference-list interface="org.opennms.integration.api.v1.alarms.AlarmPersisterExtension" availability="optional">
     <reference-listener bind-method="onBind" unbind-method="onUnbind" ref="alarmPersisterExtensionMgr" />

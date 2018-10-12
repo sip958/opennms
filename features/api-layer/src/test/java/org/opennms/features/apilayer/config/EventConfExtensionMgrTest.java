@@ -40,6 +40,8 @@ import java.util.HashMap;
 import org.junit.Test;
 import org.opennms.integration.api.v1.config.events.EventConfExtension;
 import org.opennms.integration.api.v1.config.events.EventDefinition;
+import org.opennms.integration.api.v1.config.events.LogMessage;
+import org.opennms.integration.api.v1.model.Severity;
 import org.opennms.netmgt.config.api.EventConfDao;
 import org.opennms.netmgt.xml.eventconf.Events;
 
@@ -54,11 +56,16 @@ public class EventConfExtensionMgrTest {
         Events events = eventConfExtensionMgr.getObject();
         assertThat(events.getEvents(), hasSize(0));
 
+        LogMessage logMessage = mock(LogMessage.class);
+
         // Expose an extension
         EventConfExtension ext1 = mock(EventConfExtension.class);
         EventDefinition eventDefinitionA = mock(EventDefinition.class);
         when(eventDefinitionA.getUei()).thenReturn("uei/A");
+        when(eventDefinitionA.getLabel()).thenReturn("Label A");
         when(eventDefinitionA.getPriority()).thenReturn(100);
+        when(eventDefinitionA.getSeverity()).thenReturn(Severity.CRITICAL);
+        when(eventDefinitionA.getLogMessage()).thenReturn(logMessage);
         when(ext1.getEventDefinitions()).thenReturn(Collections.singletonList(eventDefinitionA));
         eventConfExtensionMgr.onBind(ext1, new HashMap());
 
@@ -71,7 +78,10 @@ public class EventConfExtensionMgrTest {
         EventConfExtension ext2 = mock(EventConfExtension.class);
         EventDefinition eventDefinitionB = mock(EventDefinition.class);
         when(eventDefinitionB.getUei()).thenReturn("uei/B");
-        when(eventDefinitionA.getPriority()).thenReturn(10);
+        when(eventDefinitionB.getLabel()).thenReturn("Label B");
+        when(eventDefinitionB.getPriority()).thenReturn(10);
+        when(eventDefinitionB.getSeverity()).thenReturn(Severity.NORMAL);
+        when(eventDefinitionB.getLogMessage()).thenReturn(logMessage);
         when(ext2.getEventDefinitions()).thenReturn(Collections.singletonList(eventDefinitionB));
         eventConfExtensionMgr.onBind(ext2, new HashMap());
 

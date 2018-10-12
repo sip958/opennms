@@ -43,6 +43,7 @@ import org.opennms.netmgt.xml.eventconf.Event;
 import org.opennms.netmgt.xml.eventconf.Events;
 import org.opennms.netmgt.xml.eventconf.LogDestType;
 import org.opennms.netmgt.xml.eventconf.Logmsg;
+import org.opennms.netmgt.xml.eventconf.ManagedObject;
 import org.opennms.netmgt.xml.eventconf.Mask;
 import org.opennms.netmgt.xml.eventconf.Maskelement;
 import org.opennms.netmgt.xml.eventconf.Parameter;
@@ -88,7 +89,7 @@ public class EventConfExtensionMgr extends ConfigExtensionMgr<EventConfExtension
         event.setEventLabel(def.getLabel());
         event.setDescr(def.getDescription());
         event.setSeverity(def.getSeverity().getLabel());
-        event.setLogmsg(toLogMsg(def.getLogMessages()));
+        event.setLogmsg(toLogMsg(def.getLogMessage()));
         event.setAlarmData(toAlarmData(def.getAlarmData()));
         final List<Parameter> parms = def.getParameters().stream()
                 .map(EventConfExtensionMgr::toParameter)
@@ -105,24 +106,29 @@ public class EventConfExtensionMgr extends ConfigExtensionMgr<EventConfExtension
     }
 
     private static LogDestType toLogDestType(LogMsgDestType type) {
-        switch(type) {
-            case LOGNDISPLAY:
-                return LogDestType.LOGNDISPLAY;
-            case DISPLAYONLY:
-                return LogDestType.DISPLAYONLY;
-            case LOGONLY:
-                return LogDestType.LOGONLY;
-            case SUPPRESS:
-                return LogDestType.SUPPRESS;
-            case DONOTPERSIST:
-                return LogDestType.DONOTPERSIST;
-            case DISCARDTRAPS:
-                return LogDestType.DISCARDTRAPS;
+        if (type != null) {
+            switch(type) {
+                case LOGNDISPLAY:
+                    return LogDestType.LOGNDISPLAY;
+                case DISPLAYONLY:
+                    return LogDestType.DISPLAYONLY;
+                case LOGONLY:
+                    return LogDestType.LOGONLY;
+                case SUPPRESS:
+                    return LogDestType.SUPPRESS;
+                case DONOTPERSIST:
+                    return LogDestType.DONOTPERSIST;
+                case DISCARDTRAPS:
+                    return LogDestType.DISCARDTRAPS;
+            }
         }
         return LogDestType.LOGNDISPLAY;
     }
 
     private static Mask toMask(org.opennms.integration.api.v1.config.events.Mask m) {
+        if (m == null) {
+            return null;
+        }
         final Mask mask = new Mask();
         mask.setMaskelements(m.getMaskElements().stream()
                 .map(EventConfExtensionMgr::toMaskElement)
@@ -149,15 +155,21 @@ public class EventConfExtensionMgr extends ConfigExtensionMgr<EventConfExtension
     }
 
     private static AlarmData toAlarmData(org.opennms.integration.api.v1.config.events.AlarmData alarm) {
+        if (alarm == null) {
+            return null;
+        }
         final AlarmData alarmData = new AlarmData();
         alarmData.setReductionKey(alarm.getReductionKey());
         alarmData.setClearKey(alarm.getClearKey());
-        alarmData.setAlarmType(alarm.getType().getId());
+        if (alarm.getType() != null) {
+            alarmData.setAlarmType(alarm.getType().getId());
+        }
         alarmData.setAutoClean(alarm.isAutoClean());
         final List<UpdateField> updateFields = alarm.getUpdateFields().stream()
                 .map(EventConfExtensionMgr::toUpdateField)
                 .collect(Collectors.toList());
         alarmData.setUpdateFields(updateFields);
+        alarmData.setManagedObject(toManagedObject(alarm.getManagedObject()));
         return alarmData;
     }
 
@@ -174,5 +186,14 @@ public class EventConfExtensionMgr extends ConfigExtensionMgr<EventConfExtension
         parm.setValue(p.getValue());
         parm.setExpand(p.shouldExpand());
         return parm;
+    }
+
+    private static ManagedObject toManagedObject(org.opennms.integration.api.v1.config.events.ManagedObject mo) {
+        if (mo == null) {
+            return null;
+        }
+        final ManagedObject managedObject = new ManagedObject();
+        managedObject.setType(mo.getType());
+        return managedObject;
     }
 }
