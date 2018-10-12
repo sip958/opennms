@@ -32,7 +32,9 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.opennms.integration.api.v1.model.Alarm;
+import org.opennms.integration.api.v1.model.Node;
 import org.opennms.netmgt.model.OnmsAlarm;
+import org.opennms.netmgt.model.OnmsNode;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -40,11 +42,14 @@ public class AlarmBean implements Alarm {
 
     private final OnmsAlarm alarm;
 
+    private final NodeBean node;
+
     private final Map<String, String> attributes;
 
     public AlarmBean(OnmsAlarm alarm) {
         this.alarm = Objects.requireNonNull(alarm);
         this.attributes = ImmutableMap.copyOf(alarm.getDetails());
+        this.node = alarm.getNode() != null ? new NodeBean(alarm.getNode()) : null;
     }
 
     @Override
@@ -55,6 +60,11 @@ public class AlarmBean implements Alarm {
     @Override
     public Integer getId() {
         return alarm.getId();
+    }
+
+    @Override
+    public Node getNode() {
+        return node;
     }
 
     @Override

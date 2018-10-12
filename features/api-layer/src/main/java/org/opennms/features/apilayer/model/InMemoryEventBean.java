@@ -56,7 +56,19 @@ public class InMemoryEventBean implements InMemoryEvent {
     }
 
     @Override
+    public String getSource() {
+        return event.getSource();
+    }
+
+    @Override
     public List<EventParameter> getParameters() {
         return parameters;
+    }
+
+    @Override
+    public List<EventParameter> getParametersByName(String name) {
+        return parameters.stream()
+                .filter(p -> Objects.equals(name, p.getName()))
+                .collect(Collectors.toList());
     }
 }

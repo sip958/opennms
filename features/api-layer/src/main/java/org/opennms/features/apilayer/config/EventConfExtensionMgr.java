@@ -36,9 +36,18 @@ import java.util.stream.Collectors;
 
 import org.opennms.integration.api.v1.config.events.EventConfExtension;
 import org.opennms.integration.api.v1.config.events.EventDefinition;
+import org.opennms.integration.api.v1.config.events.LogMsgDestType;
 import org.opennms.netmgt.config.api.EventConfDao;
+import org.opennms.netmgt.xml.eventconf.AlarmData;
 import org.opennms.netmgt.xml.eventconf.Event;
 import org.opennms.netmgt.xml.eventconf.Events;
+import org.opennms.netmgt.xml.eventconf.LogDestType;
+import org.opennms.netmgt.xml.eventconf.Logmsg;
+import org.opennms.netmgt.xml.eventconf.Mask;
+import org.opennms.netmgt.xml.eventconf.Maskelement;
+import org.opennms.netmgt.xml.eventconf.Parameter;
+import org.opennms.netmgt.xml.eventconf.UpdateField;
+import org.opennms.netmgt.xml.eventconf.Varbind;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,9 +81,98 @@ public class EventConfExtensionMgr extends ConfigExtensionMgr<EventConfExtension
         eventConfDao.reload();
     }
 
-    private static Event toEvent(EventDefinition eventDefinition) {
+    private static Event toEvent(EventDefinition def) {
         final Event event = new Event();
-        event.setUei(eventDefinition.getUei());
+        event.setMask(toMask(def.getMask()));
+        event.setUei(def.getUei());
+        event.setEventLabel(def.getLabel());
+        event.setDescr(def.getDescription());
+        event.setSeverity(def.getSeverity().getLabel());
+        event.setLogmsg(toLogMsg(def.getLogMessages()));
+        event.setAlarmData(toAlarmData(def.getAlarmData()));
+        final List<Parameter> parms = def.getParameters().stream()
+                .map(EventConfExtensionMgr::toParameter)
+                .collect(Collectors.toList());
+        event.setParameters(parms);
         return event;
+    }
+
+    private static Logmsg toLogMsg(org.opennms.integration.api.v1.config.events.LogMessage l) {
+        final Logmsg logmsg = new Logmsg();
+        logmsg.setContent(l.getContent());
+        logmsg.setDest(toLogDestType(l.getDestination()));
+        return logmsg;
+    }
+
+    private static LogDestType toLogDestType(LogMsgDestType type) {
+        switch(type) {
+            case LOGNDISPLAY:
+                return LogDestType.LOGNDISPLAY;
+            case DISPLAYONLY:
+                return LogDestType.DISPLAYONLY;
+            case LOGONLY:
+                return LogDestType.LOGONLY;
+            case SUPPRESS:
+                return LogDestType.SUPPRESS;
+            case DONOTPERSIST:
+                return LogDestType.DONOTPERSIST;
+            case DISCARDTRAPS:
+                return LogDestType.DISCARDTRAPS;
+        }
+        return LogDestType.LOGNDISPLAY;
+    }
+
+    private static Mask toMask(org.opennms.integration.api.v1.config.events.Mask m) {
+        final Mask mask = new Mask();
+        mask.setMaskelements(m.getMaskElements().stream()
+                .map(EventConfExtensionMgr::toMaskElement)
+                .collect(Collectors.toList()));
+        mask.setVarbinds(m.getVarbinds().stream()
+                .map(EventConfExtensionMgr::toVarbind)
+                .collect(Collectors.toList()));
+        return mask;
+    }
+
+    private static Maskelement toMaskElement(org.opennms.integration.api.v1.config.events.MaskElement el) {
+        final Maskelement maskEl = new Maskelement();
+        maskEl.setMename(el.getName());
+        maskEl.setMevalues(el.getValues());
+        return maskEl;
+    }
+
+    private static Varbind toVarbind(org.opennms.integration.api.v1.config.events.Varbind vb) {
+        final Varbind varbind = new Varbind();
+        varbind.setVbnumber(vb.getNumber());
+        varbind.setTextualConvention(vb.getTextualConvention());
+        varbind.setVbvalues(vb.getValues());
+        return varbind;
+    }
+
+    private static AlarmData toAlarmData(org.opennms.integration.api.v1.config.events.AlarmData alarm) {
+        final AlarmData alarmData = new AlarmData();
+        alarmData.setReductionKey(alarm.getReductionKey());
+        alarmData.setClearKey(alarm.getClearKey());
+        alarmData.setAlarmType(alarm.getType().getId());
+        alarmData.setAutoClean(alarm.isAutoClean());
+        final List<UpdateField> updateFields = alarm.getUpdateFields().stream()
+                .map(EventConfExtensionMgr::toUpdateField)
+                .collect(Collectors.toList());
+        alarmData.setUpdateFields(updateFields);
+        return alarmData;
+    }
+
+    private static UpdateField toUpdateField(org.opennms.integration.api.v1.config.events.UpdateField u) {
+        final UpdateField updateField = new UpdateField();
+        updateField.setFieldName(u.getName());
+        updateField.setUpdateOnReduction(u.isUpdatedOnReduction());
+        return updateField;
+    }
+
+    private static Parameter toParameter(org.opennms.integration.api.v1.config.events.Parameter p) {
+        final Parameter parm = new Parameter();
+        parm.setName(p.getName());
+        parm.setValue(p.getValue());
+        parm.setExpand(p.shouldExpand());
+        return parm;
     }
 }
