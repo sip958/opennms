@@ -355,8 +355,6 @@
 
 	    <!-- Integration API -->
 	    <feature>opennms-api-layer</feature>
-	    <feature>opennms-integration-api</feature>
-	    <feature>opennms-integration-api-sample-project</feature>
           </features>
         </configuration>
       </plugin>
