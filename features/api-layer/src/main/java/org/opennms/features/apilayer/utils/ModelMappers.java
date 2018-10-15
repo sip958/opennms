@@ -35,6 +35,7 @@ import org.opennms.features.apilayer.model.NodeBean;
 import org.opennms.features.apilayer.model.SnmpInterfaceBean;
 import org.opennms.integration.api.v1.model.Alarm;
 import org.opennms.integration.api.v1.model.DatabaseEvent;
+import org.opennms.integration.api.v1.model.EventParameter;
 import org.opennms.integration.api.v1.model.InMemoryEvent;
 import org.opennms.integration.api.v1.model.Node;
 import org.opennms.integration.api.v1.model.Severity;
@@ -44,6 +45,7 @@ import org.opennms.netmgt.model.OnmsEvent;
 import org.opennms.netmgt.model.OnmsNode;
 import org.opennms.netmgt.model.OnmsSeverity;
 import org.opennms.netmgt.model.OnmsSnmpInterface;
+import org.opennms.netmgt.model.events.EventBuilder;
 import org.opennms.netmgt.xml.event.Event;
 
 public class ModelMappers {
@@ -54,6 +56,17 @@ public class ModelMappers {
 
     public static InMemoryEvent toEvent(Event event) {
         return new InMemoryEventBean(event);
+    }
+
+    public static Event toEvent(InMemoryEvent event) {
+        final EventBuilder builder = new EventBuilder(event.getUei(), event.getSource());
+        if (event.getSeverity() != null) {
+            builder.setSeverity(OnmsSeverity.get(event.getSeverity().getId()).getLabel());
+        }
+        for (EventParameter p : event.getParameters()) {
+            builder.setParam(p.getName(), p.getValue());
+        }
+        return builder.getEvent();
     }
 
     public static DatabaseEvent toEvent(OnmsEvent event) {

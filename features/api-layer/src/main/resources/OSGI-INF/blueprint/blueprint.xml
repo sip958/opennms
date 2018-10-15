@@ -9,6 +9,7 @@
   </service>
 
   <!-- DAOs -->
+  <reference id="alarmDao" interface="org.opennms.netmgt.dao.api.AlarmDao" availability="mandatory"/>
   <reference id="nodeDao" interface="org.opennms.netmgt.dao.api.NodeDao" availability="mandatory"/>
   <reference id="snmpInterfaceDao" interface="org.opennms.netmgt.dao.api.SnmpInterfaceDao" availability="mandatory"/>
   <reference id="sessionUtils" interface="org.opennms.netmgt.dao.api.SessionUtils"/>
@@ -16,6 +17,13 @@
   <service interface="org.opennms.integration.api.v1.dao.NodeDao" >
     <bean class="org.opennms.features.apilayer.dao.NodeDaoImpl">
       <argument ref="nodeDao"/>
+      <argument ref="sessionUtils"/>
+    </bean>
+  </service>
+
+  <service interface="org.opennms.integration.api.v1.dao.AlarmDao" >
+    <bean class="org.opennms.features.apilayer.dao.AlarmDaoImpl">
+      <argument ref="alarmDao"/>
       <argument ref="sessionUtils"/>
     </bean>
   </service>
@@ -28,6 +36,7 @@
 
   <!-- Events -->
   <reference id="eventConfDao" interface="org.opennms.netmgt.config.api.EventConfDao" availability="mandatory"/>
+  <reference id="eventForwarder" interface="org.opennms.netmgt.events.api.EventForwarder" availability="mandatory"/>
 
   <bean id="eventConfExtensionMgr" class="org.opennms.features.apilayer.config.EventConfExtensionMgr">
     <argument ref="eventConfDao"/>
@@ -40,6 +49,12 @@
     <service-properties>
       <entry key="registration.export" value="true"/>
     </service-properties>
+  </service>
+
+  <service interface="org.opennms.integration.api.v1.events.EventForwarder" >
+    <bean class="org.opennms.features.apilayer.events.EventForwarderImpl">
+      <argument ref="eventForwarder"/>
+    </bean>
   </service>
 
   <!-- Syslog -->
