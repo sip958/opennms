@@ -37,10 +37,12 @@ import org.opennms.integration.api.v1.model.Alarm;
 import org.opennms.integration.api.v1.model.DatabaseEvent;
 import org.opennms.integration.api.v1.model.InMemoryEvent;
 import org.opennms.integration.api.v1.model.Node;
+import org.opennms.integration.api.v1.model.Severity;
 import org.opennms.integration.api.v1.model.SnmpInterface;
 import org.opennms.netmgt.model.OnmsAlarm;
 import org.opennms.netmgt.model.OnmsEvent;
 import org.opennms.netmgt.model.OnmsNode;
+import org.opennms.netmgt.model.OnmsSeverity;
 import org.opennms.netmgt.model.OnmsSnmpInterface;
 import org.opennms.netmgt.xml.event.Event;
 
@@ -70,5 +72,26 @@ public class ModelMappers {
             return null;
         }
         return new SnmpInterfaceBean(snmpInterface);
+    }
+
+    public static Severity toSeverity(OnmsSeverity severity) {
+        if (severity == null) {
+            return null;
+        }
+        switch (severity) {
+            case CLEARED:
+                return Severity.CLEARED;
+            case NORMAL:
+                return Severity.NORMAL;
+            case WARNING:
+                return Severity.WARNING;
+            case MINOR:
+                return Severity.MINOR;
+            case MAJOR:
+                return Severity.MAJOR;
+            case CRITICAL:
+                return Severity.CRITICAL;
+        }
+        return Severity.INDETERMINATE;
     }
 }

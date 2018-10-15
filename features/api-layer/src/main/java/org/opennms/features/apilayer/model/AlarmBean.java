@@ -29,11 +29,16 @@
 package org.opennms.features.apilayer.model;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
+import org.opennms.features.apilayer.utils.ModelMappers;
+import org.opennms.integration.api.v1.config.events.AlarmType;
 import org.opennms.integration.api.v1.model.Alarm;
 import org.opennms.integration.api.v1.model.Node;
+import org.opennms.integration.api.v1.model.Severity;
 import org.opennms.netmgt.model.OnmsAlarm;
 
 import com.google.common.collect.ImmutableMap;
@@ -46,10 +51,16 @@ public class AlarmBean implements Alarm {
 
     private final Map<String, String> attributes;
 
+    private final Severity severity;
+
+    private final List<Alarm> relatedAlarms;
+
     public AlarmBean(OnmsAlarm alarm) {
         this.alarm = Objects.requireNonNull(alarm);
         this.attributes = alarm.getDetails() != null ? ImmutableMap.copyOf(alarm.getDetails()) : Collections.emptyMap();
         this.node = alarm.getNode() != null ? new NodeBean(alarm.getNode()) : null;
+        this.severity = ModelMappers.toSeverity(alarm.getSeverity());
+        this.relatedAlarms = alarm.getRelatedAlarms().stream().map(AlarmBean::new).collect(Collectors.toList());
     }
 
     @Override
@@ -68,6 +79,11 @@ public class AlarmBean implements Alarm {
     }
 
     @Override
+    public AlarmType getType() {
+        return null;
+    }
+
+    @Override
     public String getManagedObjectInstance() {
         return alarm.getManagedObjectInstance();
     }
@@ -80,6 +96,21 @@ public class AlarmBean implements Alarm {
     @Override
     public Map<String, String> getAttributes() {
         return attributes;
+    }
+
+    @Override
+    public Severity getSeverity() {
+        return severity;
+    }
+
+    @Override
+    public boolean isSituation() {
+        return relatedAlarms.size() > 0;
+    }
+
+    @Override
+    public List<Alarm> getRelatedAlarms() {
+        return relatedAlarms;
     }
 
 }

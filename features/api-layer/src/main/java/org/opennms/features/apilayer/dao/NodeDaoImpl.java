@@ -31,11 +31,13 @@ package org.opennms.features.apilayer.dao;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.opennms.core.criteria.CriteriaBuilder;
 import org.opennms.features.apilayer.utils.ModelMappers;
 import org.opennms.integration.api.v1.dao.NodeDao;
 import org.opennms.integration.api.v1.model.Node;
+import org.opennms.netmgt.dao.api.SessionUtils;
 import org.opennms.netmgt.model.OnmsNode;
 
 import com.google.common.collect.Lists;
@@ -43,9 +45,17 @@ import com.google.common.collect.Lists;
 public class NodeDaoImpl implements NodeDao {
 
     private final org.opennms.netmgt.dao.api.NodeDao nodeDao;
+    private final SessionUtils sessionUtils;
 
-    public NodeDaoImpl(org.opennms.netmgt.dao.api.NodeDao nodeDao) {
+    public NodeDaoImpl(org.opennms.netmgt.dao.api.NodeDao nodeDao, SessionUtils sessionUtils) {
         this.nodeDao = Objects.requireNonNull(nodeDao);
+        this.sessionUtils = Objects.requireNonNull(sessionUtils);
+    }
+
+    @Override
+    public List<Node> getNodes() {
+        return sessionUtils.withTransaction(() ->
+                nodeDao.findAll().stream().map(ModelMappers::toNode).collect(Collectors.toList()));
     }
 
     @Override
@@ -66,18 +76,19 @@ public class NodeDaoImpl implements NodeDao {
 
     @Override
     public Node getNodeById(Integer nodeId) {
-        return ModelMappers.toNode(nodeDao.get(nodeId));
+        return sessionUtils.withTransaction(() -> ModelMappers.toNode(nodeDao.get(nodeId)));
     }
 
     @Override
     public Node getNodeByLabel(String nodeLabel) {
-        return ModelMappers.toNode(nodeDao.findByLabel(nodeLabel).stream()
+        return sessionUtils.withTransaction(() -> ModelMappers.toNode(nodeDao.findByLabel(nodeLabel).stream()
                 .min(Comparator.comparingInt(OnmsNode::getId))
-                .orElse(null));
+                .orElse(null)));
     }
 
     @Override
     public Node getNodeByForeignSourceAndForeignId(String foreignSource, String foreignId) {
-        return ModelMappers.toNode(nodeDao.findByForeignId(foreignSource, foreignId));
+        return sessionUtils.withTransaction(() ->
+                ModelMappers.toNode(nodeDao.findByForeignId(foreignSource, foreignId)));
     }
 }

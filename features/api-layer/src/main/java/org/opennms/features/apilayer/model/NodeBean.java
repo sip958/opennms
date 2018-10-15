@@ -28,17 +28,24 @@
 
 package org.opennms.features.apilayer.model;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.opennms.integration.api.v1.model.Node;
+import org.opennms.integration.api.v1.model.SnmpInterface;
 import org.opennms.netmgt.model.OnmsNode;
 
 public class NodeBean implements Node {
 
     private final OnmsNode node;
+    private final List<SnmpInterface> snmpInterfaces;
 
     public NodeBean(OnmsNode node) {
         this.node = Objects.requireNonNull(node);
+        this.snmpInterfaces = node.getSnmpInterfaces().stream()
+                .map(s -> new SnmpInterfaceBean(s))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -59,5 +66,10 @@ public class NodeBean implements Node {
     @Override
     public String getLabel() {
         return node.getLabel();
+    }
+
+    @Override
+    public List<SnmpInterface> getSnmpInterfaces() {
+        return snmpInterfaces;
     }
 }

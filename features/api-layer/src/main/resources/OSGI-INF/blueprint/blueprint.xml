@@ -11,10 +11,12 @@
   <!-- DAOs -->
   <reference id="nodeDao" interface="org.opennms.netmgt.dao.api.NodeDao" availability="mandatory"/>
   <reference id="snmpInterfaceDao" interface="org.opennms.netmgt.dao.api.SnmpInterfaceDao" availability="mandatory"/>
+  <reference id="sessionUtils" interface="org.opennms.netmgt.dao.api.SessionUtils"/>
 
   <service interface="org.opennms.integration.api.v1.dao.NodeDao" >
     <bean class="org.opennms.features.apilayer.dao.NodeDaoImpl">
       <argument ref="nodeDao"/>
+      <argument ref="sessionUtils"/>
     </bean>
   </service>
 
@@ -57,7 +59,6 @@
   </service>
 
   <!-- Alarm Persister Extension -->
-  <reference id="sessionUtils" interface="org.opennms.netmgt.dao.api.SessionUtils"/>
   <bean id="alarmPersisterExtensionMgr" class="org.opennms.features.apilayer.alarms.AlarmPersisterExtensionMgr">
     <argument ref="blueprintBundleContext"/>
     <argument ref="sessionUtils"/>

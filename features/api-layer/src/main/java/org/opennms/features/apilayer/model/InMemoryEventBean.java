@@ -32,8 +32,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.opennms.features.apilayer.utils.ModelMappers;
 import org.opennms.integration.api.v1.model.EventParameter;
 import org.opennms.integration.api.v1.model.InMemoryEvent;
+import org.opennms.integration.api.v1.model.Severity;
+import org.opennms.netmgt.model.OnmsSeverity;
 import org.opennms.netmgt.xml.event.Event;
 
 import com.google.common.collect.ImmutableList;
@@ -41,10 +44,12 @@ import com.google.common.collect.ImmutableList;
 public class InMemoryEventBean implements InMemoryEvent {
 
     private final Event event;
+    private final Severity severity;
     private final List<EventParameter> parameters;
 
     public InMemoryEventBean(Event event) {
         this.event = Objects.requireNonNull(event);
+        this.severity = ModelMappers.toSeverity(OnmsSeverity.get(event.getSeverity()));
         this.parameters = ImmutableList.copyOf(event.getParmCollection().stream()
                 .map(EventParameterBean::new)
                 .collect(Collectors.toList()));
@@ -58,6 +63,11 @@ public class InMemoryEventBean implements InMemoryEvent {
     @Override
     public String getSource() {
         return event.getSource();
+    }
+
+    @Override
+    public Severity getSeverity() {
+        return severity;
     }
 
     @Override
