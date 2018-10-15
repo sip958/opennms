@@ -29,6 +29,7 @@
 package org.opennms.features.apilayer.model;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -111,6 +112,26 @@ public class AlarmBean implements Alarm {
     @Override
     public List<Alarm> getRelatedAlarms() {
         return relatedAlarms;
+    }
+
+    @Override
+    public String getLogMessage() {
+        return alarm.getLogMsg();
+    }
+
+    @Override
+    public String getDescription() {
+        return alarm.getDescription();
+    }
+
+    @Override
+    public Date getLastEventTime() {
+        return alarm.getLastEventTime();
+    }
+
+    @Override
+    public Date getFirstEventTime() {
+        return alarm.getFirstEventTime();
     }
 
 }
